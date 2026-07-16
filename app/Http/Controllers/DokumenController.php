@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dokumen;
+use App\Models\RiwayatDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class DokumenController extends Controller
 {
@@ -51,5 +53,70 @@ class DokumenController extends Controller
             ->get();
 
         return view('dokumen.index', compact('q', 'status', 'jaminan', 'ringkasan', 'dokumenList'));
+    }
+
+    public function edit(Dokumen $dokumen)
+    {
+        return view('dokumen.edit', compact('dokumen'));
+    }
+
+    public function update(Request $request, Dokumen $dokumen)
+    {
+        $data = $request->validate([
+            'no_registrasi' => [
+                'required',
+                'string',
+                'max:30',
+                Rule::unique('dokumen', 'no_registrasi')->ignore($dokumen->id_dokumen, 'id_dokumen'),
+            ],
+            'cif' => [
+                'required',
+                'string',
+                'max:30',
+                Rule::unique('dokumen', 'cif')->ignore($dokumen->id_dokumen, 'id_dokumen'),
+            ],
+            'nama_debitur' => ['required', 'string', 'max:100'],
+            'nomor_rekening' => ['nullable', 'string', 'max:30'],
+            'nama_pengambil' => ['nullable', 'string', 'max:100'],
+            'unit_pengambil' => ['nullable', 'string', 'max:100'],
+            'jaminan' => ['required', 'in:Ya,Tidak'],
+            'keterangan_jaminan' => ['nullable', 'string'],
+            'ruangan' => ['nullable', 'string', 'max:10'],
+            'lemari' => ['nullable', 'string', 'max:10'],
+            'rak' => ['nullable', 'string', 'max:10'],
+            'baris' => ['nullable', 'string', 'max:10'],
+            'status_terakhir' => ['required', 'in:Masuk,Keluar'],
+        ], [
+            'cif.unique' => 'CIF ini sudah terdaftar pada dokumen lain. Satu CIF hanya boleh untuk satu berkas/dokumen.',
+            'no_registrasi.unique' => 'Nomor registrasi ini sudah digunakan pada dokumen lain.',
+        ]);
+
+        $dokumen->update([
+            'no_registrasi' => $data['no_registrasi'],
+            'cif' => $data['cif'],
+            'nama_debitur' => $data['nama_debitur'],
+            'nomor_rekening' => $data['nomor_rekening'] ?: null,
+            'nama_pengambil' => $data['nama_pengambil'] ?: null,
+            'unit_pengambil' => $data['unit_pengambil'] ?: null,
+            'jaminan' => $data['jaminan'],
+            'keterangan_jaminan' => $data['keterangan_jaminan'] ?: null,
+            'ruangan' => $data['ruangan'] ?: null,
+            'lemari' => $data['lemari'] ?: null,
+            'rak' => $data['rak'] ?: null,
+            'baris' => $data['baris'] ?: null,
+            'status_terakhir' => $data['status_terakhir'],
+        ]);
+
+        return redirect()->route('dokumen.index')->with('success', 'Data dokumen berhasil diperbarui.');
+    }
+
+    public function destroy(Dokumen $dokumen)
+    {
+        DB::transaction(function () use ($dokumen) {
+            RiwayatDokumen::where('id_dokumen', $dokumen->id_dokumen)->delete();
+            $dokumen->delete();
+        });
+
+        return redirect()->route('dokumen.index')->with('success', 'Data dokumen dan riwayatnya berhasil dihapus.');
     }
 }

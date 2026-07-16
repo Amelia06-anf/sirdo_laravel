@@ -28,6 +28,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/dokumen', [DokumenController::class, 'index'])->name('dokumen.index');
+    Route::get('/dokumen/{dokumen}/edit', [DokumenController::class, 'edit'])->name('dokumen.edit');
+    Route::put('/dokumen/{dokumen}', [DokumenController::class, 'update'])->name('dokumen.update');
+    Route::delete('/dokumen/{dokumen}', [DokumenController::class, 'destroy'])->name('dokumen.destroy');
 
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/excel', [LaporanController::class, 'exportExcel'])->name('laporan.excel');

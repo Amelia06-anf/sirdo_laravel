@@ -7,6 +7,7 @@ use App\Models\RiwayatDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class RegistrasiController extends Controller
 {
@@ -59,6 +60,12 @@ class RegistrasiController extends Controller
             } else {
                 if (empty($data['no_registrasi']) || empty($data['cif']) || empty($data['nama_debitur'])) {
                     abort(422, 'No registrasi, CIF, dan nama debitur wajib diisi.');
+                }
+
+                if (Dokumen::where('cif', $data['cif'])->exists()) {
+                    throw ValidationException::withMessages([
+                        'cif' => 'CIF '.$data['cif'].' sudah terdaftar. Gunakan opsi "Dokumen sudah terdaftar", bukan input dokumen baru.',
+                    ]);
                 }
 
                 $dokumen = Dokumen::create([
@@ -123,7 +130,6 @@ class RegistrasiController extends Controller
         ]);
 
         DB::transaction(function () use ($data, &$dokumen) {
-            $awalan = '';
             if ($data['sumber_dokumen'] === 'tercatat') {
                 $dokumen = Dokumen::where('no_registrasi', $data['no_registrasi_existing'])
                     ->where('status_terakhir', 'Keluar')
@@ -132,6 +138,12 @@ class RegistrasiController extends Controller
             } else {
                 if (empty($data['no_registrasi_baru']) || empty($data['cif_baru']) || empty($data['nama_debitur_baru'])) {
                     abort(422, 'No registrasi, CIF, dan nama debitur wajib diisi.');
+                }
+
+                if (Dokumen::where('cif', $data['cif_baru'])->exists()) {
+                    throw ValidationException::withMessages([
+                        'cif_baru' => 'CIF '.$data['cif_baru'].' sudah terdaftar. Gunakan opsi "Sudah tercatat keluar" bila dokumen sedang keluar, atau cari di Data Dokumen.',
+                    ]);
                 }
 
                 $dokumen = Dokumen::create([
@@ -146,7 +158,6 @@ class RegistrasiController extends Controller
                     'jaminan' => $data['jaminan'] ?? 'Tidak',
                     'keterangan_jaminan' => $data['keterangan_jaminan'] ?: null,
                 ]);
-                $awalan = 'Dokumen lama pertama kali dicatat saat masuk. ';
             }
 
             $dokumen->fill([
@@ -156,7 +167,7 @@ class RegistrasiController extends Controller
                 'id_petugas' => Auth::id(),
             ])->save();
 
-            $keterangan = $awalan.'Dikembalikan oleh '.$data['nama_pengembali'].' ('.$data['unit_pengembali'].')';
+            $keterangan = 'Dikembalikan oleh '.$data['nama_pengembali'].' ('.$data['unit_pengembali'].')';
             if (($data['jaminan'] ?? 'Tidak') === 'Ya') {
                 $keterangan .= '. Membawa jaminan';
                 if (!empty($data['keterangan_jaminan'])) {

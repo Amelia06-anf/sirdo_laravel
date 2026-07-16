@@ -21,7 +21,7 @@
     </form>
     <div class="table-wrap">
         <table>
-            <thead><tr><th>No. Reg</th><th>CIF</th><th>Nama Debitur</th><th>No. Rekening</th><th>Status</th><th>Jaminan</th><th>Lokasi</th><th>Petugas</th><th>Aktivitas Terakhir</th></tr></thead>
+            <thead><tr><th>No. Reg</th><th>CIF</th><th>Nama Debitur</th><th>No. Rekening</th><th>Status</th><th>Jaminan</th><th>Lokasi</th><th>Petugas</th><th>Aktivitas Terakhir</th><th>Aksi</th></tr></thead>
             <tbody>
             @forelse ($dokumenList as $dokumen)
                 @php
@@ -37,9 +37,19 @@
                     <td><span class="status status-{{ strtolower($dokumen->status_terakhir) }}">{{ $dokumen->status_terakhir }}</span></td>
                     <td><span class="mini-badge {{ $dokumen->jaminan === 'Ya' ? 'badge-warning' : 'badge-muted' }}">{{ $dokumen->jaminan ?: 'Tidak' }}</span></td>
                     <td>{{ $lokasi ?: '-' }}</td><td>{{ $dokumen->nama_petugas }}</td><td>{{ $dokumen->aktivitas_terakhir ? date('d/m/Y H:i', strtotime($dokumen->aktivitas_terakhir)) : '-' }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <a class="action-button edit-button" href="{{ route('dokumen.edit', $dokumen->id_dokumen) }}">Edit</a>
+                            <form method="POST" action="{{ route('dokumen.destroy', $dokumen->id_dokumen) }}" onsubmit="return confirm('Yakin hapus dokumen {{ $dokumen->no_registrasi }}? Riwayat dokumen ini juga akan ikut terhapus.');">
+                                @csrf
+                                @method('DELETE')
+                                <button class="action-button delete-button" type="submit">Hapus</button>
+                            </form>
+                        </div>
+                    </td>
                 </tr>
             @empty
-                <tr><td class="empty-table" colspan="9">Belum ada dokumen yang sesuai filter.</td></tr>
+                <tr><td class="empty-table" colspan="10">Belum ada dokumen yang sesuai filter.</td></tr>
             @endforelse
             </tbody>
         </table>
