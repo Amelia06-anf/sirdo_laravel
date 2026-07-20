@@ -11,11 +11,11 @@ class DashboardController extends Controller
     public function index()
     {
         $ringkasan = [
-            'total_keluar' => RiwayatDokumen::where('status', 'Keluar')->count(),
-            'total_masuk' => RiwayatDokumen::where('status', 'Masuk')->count(),
+            'total_keluar' => Dokumen::where('status_terakhir', 'Keluar')->count(),
+            'total_masuk' => Dokumen::where('status_terakhir', 'Masuk')->count(),
             'hari_keluar' => RiwayatDokumen::where('status', 'Keluar')->whereDate('tanggal_status', today())->count(),
             'hari_masuk' => RiwayatDokumen::where('status', 'Masuk')->whereDate('tanggal_status', today())->count(),
-            'total_debitur' => Dokumen::whereNotNull('cif')->where('cif', '<>', '')->distinct('cif')->count('cif'),
+            'total_debitur' => Dokumen::count(),
         ];
 
         $dokumenTerbaru = Dokumen::query()

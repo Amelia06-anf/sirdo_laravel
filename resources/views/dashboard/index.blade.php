@@ -5,10 +5,10 @@
 
 @section('content')
 <section class="stat-grid">
-    <article class="stat-card stat-blue"><div><span>Total Dokumen Keluar</span><strong>{{ number_format($ringkasan['total_keluar']) }}</strong><small>Semua dokumen keluar</small></div></article>
-    <article class="stat-card stat-green"><div><span>Total Dokumen Masuk</span><strong>{{ number_format($ringkasan['total_masuk']) }}</strong><small>Semua dokumen masuk</small></div></article>
+    <article class="stat-card stat-blue"><div><span>Total Dokumen Keluar</span><strong>{{ number_format($ringkasan['total_keluar']) }}</strong><small>Dokumen berstatus keluar</small></div></article>
+    <article class="stat-card stat-green"><div><span>Total Dokumen Masuk</span><strong>{{ number_format($ringkasan['total_masuk']) }}</strong><small>Dokumen berstatus masuk</small></div></article>
     <article class="stat-card stat-orange today-card"><div class="today-title">Dokumen Hari Ini</div><div class="today-stats"><div><strong>{{ number_format($ringkasan['hari_keluar']) }}</strong><span>Keluar</span></div><div><strong>{{ number_format($ringkasan['hari_masuk']) }}</strong><span>Masuk</span></div></div></article>
-    <article class="stat-card stat-purple"><div><span>Total Debitur</span><strong>{{ number_format($ringkasan['total_debitur']) }}</strong><small>Debitur terdaftar</small></div></article>
+    <article class="stat-card stat-purple"><div><span>Total Debitur</span><strong>{{ number_format($ringkasan['total_debitur']) }}</strong><small>Total debitur/dokumen tercatat</small></div></article>
 </section>
 
 <section class="latest-panel">
